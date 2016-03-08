@@ -59,6 +59,14 @@ def lr_plot(lrp):
     plt.show()
 
 def lr_vander():
+    """
+    The polynomial regression model can be expressed in matrix form :
+    y_ = X.a_ where X is the Vandermonde matrix and a_ is the vector of coefficients
+    for the fitted polynomial.
+        [1 x1 x1^2 ... x1^n]
+    X = |1 x2 x2^2 ... x2^n|
+        [1 xn xn^2 ... xn^n]
+    """
     lrp = lm.LinearRegression()
     lr_plot(lrp)
 
