@@ -5,9 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.font_manager
 from sklearn import svm
+from sklearn.svm import SVC
+from sklearn.cross_validation import StratifiedShuffleSplit
+from sklearn.grid_search import GridSearchCV
+
 
 # Generate problem data
-
+############### SVM ###############
 # Create a mesh of size (len(y), len(x)) to evaluate the function on
 xx, yy = np.meshgrid(np.linspace(-5, 5, 500), np.linspace(-5, 5, 500)) # np.linspace(start, stop, num)
 
@@ -22,6 +26,11 @@ X_test = np.r_[X + 2, X, X - 2]
 
 # Generate some abnormal novel observations (away from (2,2) and (-2,-2))
 X_outliers = np.random.uniform(low=-4, high=4, size=(20, 2))
+
+############### SVC ###############
+X_svc_outliers = np.random.uniform(low=-4, high=4, size=(50, 2))
+X = np.vstack((X_svc_outliers, X_train))
+Y = np.append(-1 * np.ones(len(X_svc_outliers)), np.ones(len(X_train)))
 
 def svm_fit(kernel):
     """
@@ -49,16 +58,33 @@ def svm_fit(kernel):
     n_error_outliers = y_pred_outliers[y_pred_outliers == 1].size
     return clf
 
-def svc_fit():
+def svc_fit(optimal):
     """
     Fit the model with a Support Vector Classifier
     """
-    X_svc_outliers = np.random.uniform(low=-4, high=4, size=(50, 2))
-    X = np.vstack((X_svc_outliers, X_train))
-    Y = np.append(-1 * np.ones(len(X_svc_outliers)), np.ones(len(X_train)))
-    clf = svm.SVC(C=1.0, kernel='rbf')
+    clf = svm.SVC(C=optimal['C'], kernel='rbf', gamma=optimal['gamma'])
     clf.fit(X, Y)
     return clf
+
+def svc_optimal_params():
+    """
+    Find the optimal set of parameters for the SVC given data X and labels Y
+
+    Available params :
+        ['kernel', 'C', 'verbose', 'probability', 'degree', 'shrinking',
+         'max_iter', 'decision_function_shape', 'random_state', 'tol',
+         'cache_size', 'coef0', 'gamma', 'class_weight']
+    """
+    C_range = np.logspace(-2, 2, 5)
+    gamma_range = np.logspace(-2, 2, 5)
+    param_grid = dict(gamma=gamma_range, C=C_range)
+    cv = StratifiedShuffleSplit(Y, n_iter=5, test_size=0.2, random_state=42)
+    grid = GridSearchCV(SVC(), param_grid=param_grid, cv=cv)
+    grid.fit(X, Y)
+
+    print("The best parameters are %s with a score of %0.2f"
+        % (grid.best_params_, grid.best_score_))
+    return grid.best_params_
 
 def svm_plot(decision_function):
     """ Plot results """
@@ -94,8 +120,15 @@ def svm_plot(decision_function):
     #    % (n_error_train, n_error_test, n_error_outliers))
     plt.show()
 
+def svm_run():
+    clf = svm_fit('rbf')
+    svm_plot(clf.decision_function)
+
+def svc_run():
+    params = svc_optimal_params()
+    clf = svc_fit(params)
+    svm_plot(clf.decision_function)
 
 if __name__ == '__main__':
-    # clf = svm_fit('rbf')
-    clf = svc_fit()
-    svm_plot(clf.decision_function)
+    # svc_run()
+    svm_run()
