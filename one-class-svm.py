@@ -70,6 +70,8 @@ def svc_optimal_params():
     """
     Find the optimal set of parameters for the SVC given data X and labels Y
 
+    Based on http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html
+
     Available params :
         ['kernel', 'C', 'verbose', 'probability', 'degree', 'shrinking',
          'max_iter', 'decision_function_shape', 'random_state', 'tol',
