@@ -25,7 +25,7 @@ X_outliers = np.random.uniform(low=-4, high=4, size=(20, 2))
 
 def svm_fit(kernel):
     """
-    Fit the model
+    Fit the model with a Support Vector Machine
      OneClassSVM :
         - nu : An upper bound on the fraction of training errors and a lower bound of the fraction of support vectors
         - kernel : similarity function - takes two inputs and spits out how similar they are
@@ -47,6 +47,17 @@ def svm_fit(kernel):
     n_error_train = y_pred_train[y_pred_train == -1].size
     n_error_test = y_pred_test[y_pred_test == -1].size
     n_error_outliers = y_pred_outliers[y_pred_outliers == 1].size
+    return clf
+
+def svc_fit():
+    """
+    Fit the model with a Support Vector Classifier
+    """
+    X_svc_outliers = np.random.uniform(low=-4, high=4, size=(50, 2))
+    X = np.vstack((X_svc_outliers, X_train))
+    Y = np.append(-1 * np.ones(len(X_svc_outliers)), np.ones(len(X_train)))
+    clf = svm.SVC(C=1.0, kernel='rbf')
+    clf.fit(X, Y)
     return clf
 
 def svm_plot(decision_function):
@@ -85,5 +96,6 @@ def svm_plot(decision_function):
 
 
 if __name__ == '__main__':
-    clf = svm_fit('rbf')
+    # clf = svm_fit('rbf')
+    clf = svc_fit()
     svm_plot(clf.decision_function)
